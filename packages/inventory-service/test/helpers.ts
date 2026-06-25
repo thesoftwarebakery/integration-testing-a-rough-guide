@@ -1,6 +1,6 @@
 import { MongoClient, type Db } from 'mongodb';
 import { createApp } from '../src/app.js';
-import { createServer, type Server } from 'http';
+import { createServer, type Server } from 'node:http';
 
 export interface TestContext {
   db: Db;

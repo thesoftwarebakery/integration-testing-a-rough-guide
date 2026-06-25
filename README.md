@@ -1,4 +1,4 @@
-# Integration Testing: A Rough Guide - Code
+# Integration Testing: A Rough Guide
 
 Companion repository for the blog post [Integration testing: a rough guide](https://bakes.software/thoughts/integration-testing-a-rough-guide).
 
