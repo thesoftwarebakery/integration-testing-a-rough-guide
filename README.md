@@ -1,4 +1,4 @@
-# Integration Testing: A Rough Guide — Code
+# Integration Testing: A Rough Guide - Code
 
 Companion repository for the blog post [Integration testing: a rough guide](https://bakes.software/thoughts/integration-testing-a-rough-guide).
 
@@ -33,7 +33,7 @@ The post describes an approach to integration testing: real containers for state
 
 - Node.js 20+
 - pnpm (`npm install -g pnpm`)
-- Docker (running — required for testcontainers)
+- Docker (running - required for testcontainers)
 
 ---
 
@@ -64,7 +64,7 @@ packages/
   │  openapi.yaml         #   ← source of truth for the order-service API
   │  migrations/          #   ← SQL run against the testcontainer DB
   │  src/
-  │  │  app.ts            #   ← createApp(deps) — the app factory
+  │  │  app.ts            #   ← createApp(deps) - the app factory
   │  │  routes/orders.ts  #   ← calls inventory-service via injected client
   │  test/
   │     global-setup.ts                #   ← starts PostgreSQL container once per run
@@ -99,7 +99,7 @@ Axios is used as the HTTP client (Orval's default). The generated functions call
 
 Run codegen: `pnpm codegen` (or `pnpm --filter '*-sdk' codegen`)
 
-The generated files are gitignored — commit the `openapi.yaml`, not the output.
+The generated files are gitignored - commit the `openapi.yaml`, not the output.
 
 ---
 
@@ -109,61 +109,19 @@ The generated files are gitignored — commit the `openapi.yaml`, not the output
 
 The `createApp(deps)` pattern is what makes in-process testing work. Tests call it with a testcontainer-backed DB; the inventory-service URL is configured separately via `configure()` from the SDK, which MSW then intercepts. Production `server.ts` does the same with a real URL.
 
-```ts
-// test/helpers.ts
-configure('http://inventory.test'); // MSW intercepts this
-const app = createApp({ db: pool });
-
-// src/server.ts
-configure(process.env['INVENTORY_SERVICE_URL'] ?? 'http://localhost:3002');
-const app = createApp({ db: pool });
-```
-
-The routes use the generated `getProduct` from `@repo/inventory-service-sdk` directly — no hand-written client interface. If inventory-service changes its API, the TypeScript import breaks at compile time.
+The routes use the generated `getProduct` from `@repo/inventory-service-sdk` directly - no hand-written client interface. If inventory-service changes its API, the TypeScript import breaks at compile time.
 
 ### Container lifecycle (`test/global-setup.ts`)
 
-One container per test run, started before any test file executes. Vitest's `globalSetup` hooks ensure this. After starting the container, migrations run once on a template database — test suites clone this template instead of re-running migrations each time.
-
-```ts
-export async function setup() {
-  container = await new PostgreSqlContainer('postgres:16-alpine').start();
-  // Run migrations once on a template DB
-  await pool.query('CREATE DATABASE "template_orders"');
-  await runMigrations(templatePool);
-  process.env['POSTGRES_TEST_URI'] = container.getConnectionUri();
-}
-```
+One container per test run, started before any test file executes. Vitest's `globalSetup` hooks ensure this. After starting the container, migrations run once on a template database - test suites clone this template instead of re-running migrations each time.
 
 ### Database isolation (`test/helpers.ts`)
 
-Each test file clones the template database — a single PostgreSQL operation that copies the entire schema without re-running migrations. The order-service has two test files (`orders.integration.test.ts` and `list-orders.integration.test.ts`) that each call `setup()` — each gets a fresh clone, so seed data in one file never leaks into the other. Teardown drops the clone entirely.
-
-```ts
-const dbName = `test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-await adminPool.query(`CREATE DATABASE "${dbName}" TEMPLATE "template_orders"`);
-// ... run tests ...
-await cleanup.query(`DROP DATABASE IF EXISTS "${dbName}"`);
-```
+Each test file clones the template database - a single PostgreSQL operation that copies the entire schema without re-running migrations. The order-service has two test files (`orders.integration.test.ts` and `list-orders.integration.test.ts`) that each call `setup()` - each gets a fresh clone, so seed data in one file never leaks into the other. Teardown drops the clone entirely.
 
 ### MSW setup and teardown (`test/helpers.ts`, `test/*.test.ts`)
 
 Default handlers from the generated SDK cover all endpoints. Tests override specific handlers per-test and reset after each one.
-
-```ts
-// helpers.ts — default handlers from Orval-generated SDK
-const mswServer = setupServer(...getInventoryServiceMock());
-
-// test file — override for a specific test
-ctx.mswServer.use(
-  http.get('http://inventory.test/products/:id', () =>
-    HttpResponse.json({ id: 'prod-1', stock: 0 })
-  )
-);
-
-// test file — afterEach to prevent handler leakage between tests
-afterEach(() => ctx.mswServer.resetHandlers());
-```
 
 ---
 
@@ -180,11 +138,11 @@ afterEach(() => ctx.mswServer.resetHandlers());
 
 ## Troubleshooting
 
-**`POSTGRES_TEST_URI not set — did globalSetup run?`**
+**`POSTGRES_TEST_URI not set - did globalSetup run?`**
 Docker is not running, or testcontainers couldn't start a container. Check `docker info`.
 
 **`Container took too long to start`**
 First run pulls the Docker image. Subsequent runs are fast. Increase `testTimeout` in `vitest.config.ts` if needed.
 
 **`Module not found: @repo/inventory-service-sdk`**
-Run `pnpm codegen` — the `src/generated/` directory is gitignored and must be generated locally.
+Run `pnpm codegen` - the `src/generated/` directory is gitignored and must be generated locally.
