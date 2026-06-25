@@ -1,0 +1,84 @@
+openapi: 3.1.0
+info:
+  title: Inventory Service
+  version: 1.0.0
+paths:
+  /products/{id}:
+    get:
+      operationId: getProduct
+      summary: Get a product with current stock level
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /products/{id}/stock:
+    put:
+      operationId: updateStock
+      summary: Update stock level for a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStockRequest'
+      responses:
+        '200':
+          description: Stock updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, name, stock, price]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        stock:
+          type: integer
+        price:
+          type: number
+    UpdateStockRequest:
+      type: object
+      required: [stock]
+      properties:
+        stock:
+          type: integer
+          minimum: 0
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string

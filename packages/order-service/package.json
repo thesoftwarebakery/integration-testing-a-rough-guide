@@ -1,0 +1,24 @@
+{
+  "name": "@repo/order-service",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/inventory-service-sdk": "workspace:*",
+    "express": "^4.19.2",
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.9.0",
+    "@types/express": "^4.17.21",
+    "@types/pg": "^8.11.6",
+    "msw": "^2.3.1",
+    "tsx": "^4.11.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

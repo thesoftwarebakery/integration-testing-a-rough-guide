@@ -1,0 +1,15 @@
+{
+  "name": "integration-testing-a-rough-guide",
+  "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "scripts": {
+    "codegen": "pnpm --filter '*-sdk' codegen",
+    "test": "pnpm -r --filter './packages/*' test",
+    "typecheck": "pnpm -r --filter './packages/*' typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

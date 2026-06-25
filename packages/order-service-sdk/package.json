@@ -1,0 +1,17 @@
+{
+  "name": "@repo/order-service-sdk",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "codegen": "orval --config orval.config.ts"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.0.0",
+    "axios": "^1.7.0",
+    "msw": "^2.3.1"
+  },
+  "devDependencies": {
+    "orval": "^7.1.0",
+    "typescript": "^5.4.5"
+  }
+}
